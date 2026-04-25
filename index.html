@@ -1,0 +1,333 @@
+<!doctype html>
+<html lang="he" dir="rtl" class="h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>איש המים | Ish HaMayim</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700;900&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Heebo', sans-serif; }
+
+    @keyframes waveFlow1 {
+      0% { transform: translateX(0) scaleY(1); }
+      50% { transform: translateX(-30px) scaleY(1.08); }
+      100% { transform: translateX(0) scaleY(1); }
+    }
+    @keyframes waveFlow2 {
+      0% { transform: translateX(0) scaleY(1); }
+      50% { transform: translateX(40px) scaleY(0.92); }
+      100% { transform: translateX(0) scaleY(1); }
+    }
+    @keyframes waveFlow3 {
+      0% { transform: translateX(0) scaleY(1); }
+      50% { transform: translateX(-20px) scaleY(1.05); }
+      100% { transform: translateX(0) scaleY(1); }
+    }
+    .wave-1 { animation: waveFlow1 6s ease-in-out infinite; }
+    .wave-2 { animation: waveFlow2 8s ease-in-out infinite; }
+    .wave-3 { animation: waveFlow3 7s ease-in-out infinite; }
+
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .anim-in { animation: fadeInUp 0.8s ease-out forwards; opacity: 0; }
+    .anim-d1 { animation-delay: 0.1s; }
+    .anim-d2 { animation-delay: 0.3s; }
+    .anim-d3 { animation-delay: 0.5s; }
+    .anim-d4 { animation-delay: 0.7s; }
+
+    @keyframes shimmer {
+      0% { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
+    .btn-shimmer {
+      background-size: 200% 100%;
+      background-image: linear-gradient(90deg, #4BC8E8 0%, #7DDBF5 50%, #4BC8E8 100%);
+      animation: shimmer 3s ease-in-out infinite;
+    }
+
+    .toast-enter { animation: fadeInUp 0.4s ease-out forwards; }
+    input:focus { outline: none; box-shadow: 0 0 0 3px rgba(75, 200, 232, 0.4); }
+  </style>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            navy: '#1E2D7B',
+            'navy-dark': '#141f5c',
+            cyan: '#4BC8E8',
+            'cyan-light': '#7DDBF5',
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="h-full" style="background-color:#1E2D7B; color:#ffffff;">
+  <div id="app-wrapper" class="w-full h-full overflow-auto" style="background-color:#1E2D7B;">
+
+    <!-- HERO SECTION -->
+    <section class="relative w-full overflow-hidden" style="min-height: 90%;">
+      <!-- Wave backgrounds -->
+      <svg class="wave-1 absolute bottom-0 left-0 w-full" style="height:180px; opacity:0.08;" viewBox="0 0 1440 180" preserveAspectRatio="none">
+        <path fill="#4BC8E8" d="M0,80 C360,160 720,0 1080,80 C1260,120 1380,60 1440,80 L1440,180 L0,180Z"/>
+      </svg>
+      <svg class="wave-2 absolute bottom-0 left-0 w-full" style="height:140px; opacity:0.12;" viewBox="0 0 1440 140" preserveAspectRatio="none">
+        <path fill="#4BC8E8" d="M0,60 C240,120 480,20 720,80 C960,140 1200,40 1440,90 L1440,140 L0,140Z"/>
+      </svg>
+      <svg class="wave-3 absolute bottom-0 left-0 w-full" style="height:100px; opacity:0.18;" viewBox="0 0 1440 100" preserveAspectRatio="none">
+        <path fill="#4BC8E8" d="M0,40 C180,80 360,10 540,50 C720,90 900,20 1080,60 C1260,100 1380,50 1440,70 L1440,100 L0,100Z"/>
+      </svg>
+
+      <!-- Floating circles -->
+      <div class="absolute top-10 left-10 w-64 h-64 rounded-full opacity-5" style="background: radial-gradient(circle, #4BC8E8, transparent 70%);"></div>
+      <div class="absolute bottom-20 right-20 w-96 h-96 rounded-full opacity-5" style="background: radial-gradient(circle, #4BC8E8, transparent 70%);"></div>
+
+      <div class="relative z-10 max-w-7xl mx-auto px-6 py-16 flex flex-col lg:flex-row gap-12 items-center" style="min-height:90%;">
+
+        <!-- Form (RTL primary = right side, appears first in DOM) -->
+        <div class="w-full lg:w-5/12 anim-in anim-d2">
+          <div class="rounded-2xl p-8 relative overflow-hidden" style="background: rgba(255,255,255,0.06); backdrop-filter: blur(10px); border: 1px solid rgba(75,200,232,0.2);">
+            <div class="absolute top-0 right-0 w-32 h-32 rounded-full opacity-10" style="background: radial-gradient(circle, #4BC8E8, transparent 70%); transform: translate(30%, -30%);"></div>
+            <h2 class="text-2xl font-black mb-6" style="color:#4BC8E8;">הצטרפו עכשיו</h2>
+            <form id="lead-form" class="space-y-4 relative z-10" novalidate>
+              <div>
+                <label for="fname" class="block text-sm font-bold mb-1 opacity-80">שם מלא *</label>
+                <input type="text" id="fname" name="name" required minlength="2"
+                  placeholder="השם שלך"
+                  class="w-full px-4 py-3 rounded-xl text-white font-bold"
+                  style="background:rgba(255,255,255,0.08); border:1px solid rgba(75,200,232,0.3);">
+                <p class="error-msg text-xs mt-1 hidden" style="color:#f87171;" id="fname-error"></p>
+              </div>
+              <div>
+                <label for="fphone" class="block text-sm font-bold mb-1 opacity-80">טלפון *</label>
+                <input type="tel" id="fphone" name="phone" required
+                  placeholder="050-000-0000" dir="ltr"
+                  class="w-full px-4 py-3 rounded-xl text-white font-bold text-left"
+                  style="background:rgba(255,255,255,0.08); border:1px solid rgba(75,200,232,0.3);">
+                <p class="error-msg text-xs mt-1 hidden" style="color:#f87171;" id="fphone-error"></p>
+              </div>
+              <div>
+                <label for="femail" class="block text-sm font-bold mb-1 opacity-80">אימייל <span class="opacity-60 font-normal">(לא חובה)</span></label>
+                <input type="email" id="femail" name="email"
+                  placeholder="your@email.com" dir="ltr"
+                  class="w-full px-4 py-3 rounded-xl text-white font-bold text-left"
+                  style="background:rgba(255,255,255,0.08); border:1px solid rgba(75,200,232,0.3);">
+                <p class="error-msg text-xs mt-1 hidden" style="color:#f87171;" id="femail-error"></p>
+              </div>
+              <!-- Honeypot - hidden from real users -->
+              <input type="text" name="website" style="position:absolute;left:-9999px;opacity:0;pointer-events:none;" tabindex="-1" autocomplete="off">
+
+              <button id="submit-btn" type="submit"
+                class="btn-shimmer w-full py-4 rounded-xl font-black text-lg mt-4 transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+                style="color:#141f5c;">
+                <span id="submit-text">אני רוצה להצטרף!</span>
+                <span id="submit-spinner" class="hidden">שולח...</span>
+              </button>
+            </form>
+            <div id="toast" class="hidden mt-4 p-3 rounded-xl text-center font-bold text-sm"></div>
+          </div>
+        </div>
+
+        <!-- Hero content -->
+        <div class="w-full lg:w-7/12 text-center lg:text-right">
+          <div class="anim-in anim-d1 mb-6 flex justify-center lg:justify-start">
+            <div class="w-28 h-28 rounded-full flex items-center justify-center"
+              style="background: linear-gradient(135deg, #4BC8E8 0%, #1E2D7B 100%); border: 3px solid rgba(75,200,232,0.5);">
+              <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+                <circle cx="30" cy="18" r="8" fill="white" opacity="0.9"/>
+                <path d="M16 55 C16 38 24 30 30 30 C36 30 44 38 44 55" fill="none" stroke="white" stroke-width="3" stroke-linecap="round" opacity="0.9"/>
+                <path d="M10 42 C18 36 24 44 30 38 C36 44 42 36 50 42" fill="none" stroke="#4BC8E8" stroke-width="2.5" stroke-linecap="round"/>
+                <path d="M8 50 C16 44 22 52 30 46 C38 52 44 44 52 50" fill="none" stroke="#4BC8E8" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+              </svg>
+            </div>
+          </div>
+          <h1 class="anim-in anim-d1 text-5xl md:text-7xl font-black leading-tight mb-4"
+            style="text-shadow: 0 4px 30px rgba(75,200,232,0.3);">איש המים</h1>
+          <p class="anim-in anim-d2 text-2xl md:text-3xl font-bold mb-6" style="color:#4BC8E8;">להתחבר לחופש דרך המים</p>
+          <p class="anim-in anim-d3 text-lg opacity-80 max-w-xl leading-relaxed mx-auto lg:mx-0 lg:mr-0">
+            הצטרפו לקהילה של אנשים שמחפשים את החופש האמיתי. חוויות מים ייחודיות שמשנות את החיים.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Wave divider -->
+    <div class="relative w-full" style="height:80px; margin-top:-1px;">
+      <svg class="w-full h-full" viewBox="0 0 1440 80" preserveAspectRatio="none">
+        <path fill="#141f5c" d="M0,0 C360,60 720,10 1080,40 C1260,55 1380,30 1440,35 L1440,80 L0,80Z"/>
+      </svg>
+    </div>
+
+    <!-- FEATURES SECTION -->
+    <section class="w-full py-20 px-6" style="background-color:#141f5c;">
+      <div class="max-w-6xl mx-auto">
+        <h2 class="text-4xl font-black text-center mb-16 anim-in" style="color:#4BC8E8;">למה איש המים?</h2>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div class="anim-in anim-d2 rounded-2xl p-8 text-center transition-transform hover:scale-105"
+            style="background: rgba(75,200,232,0.06); border:1px solid rgba(75,200,232,0.15);">
+            <div class="w-16 h-16 rounded-full mx-auto mb-5 flex items-center justify-center"
+              style="background: rgba(75,200,232,0.15);">
+              <i data-lucide="waves" style="width:32px;height:32px;color:#4BC8E8;"></i>
+            </div>
+            <h3 class="text-xl font-black mb-3" style="color:#4BC8E8;">חופש אמיתי</h3>
+            <p class="opacity-70 leading-relaxed">חוויות מים שמשחררות את הנפש ומחברות אותך לעצמך בצורה עמוקה ואמיתית.</p>
+          </div>
+          <div class="anim-in anim-d3 rounded-2xl p-8 text-center transition-transform hover:scale-105"
+            style="background: rgba(75,200,232,0.06); border:1px solid rgba(75,200,232,0.15);">
+            <div class="w-16 h-16 rounded-full mx-auto mb-5 flex items-center justify-center"
+              style="background: rgba(75,200,232,0.15);">
+              <i data-lucide="users" style="width:32px;height:32px;color:#4BC8E8;"></i>
+            </div>
+            <h3 class="text-xl font-black mb-3" style="color:#4BC8E8;">קהילה חזקה</h3>
+            <p class="opacity-70 leading-relaxed">קהילה תומכת של אנשים עם חזון משותף, שצומחים יחד דרך המים.</p>
+          </div>
+          <div class="anim-in anim-d4 rounded-2xl p-8 text-center transition-transform hover:scale-105"
+            style="background: rgba(75,200,232,0.06); border:1px solid rgba(75,200,232,0.15);">
+            <div class="w-16 h-16 rounded-full mx-auto mb-5 flex items-center justify-center"
+              style="background: rgba(75,200,232,0.15);">
+              <i data-lucide="sparkles" style="width:32px;height:32px;color:#4BC8E8;"></i>
+            </div>
+            <h3 class="text-xl font-black mb-3" style="color:#4BC8E8;">חוויה ייחודית</h3>
+            <p class="opacity-70 leading-relaxed">שיטות ייחודיות שלא תמצאו בשום מקום אחר. גישה חדשנית לעולם המים.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Bottom wave -->
+    <div class="relative w-full" style="height:60px; margin-top:-1px; background-color:#141f5c;">
+      <svg class="w-full h-full" viewBox="0 0 1440 60" preserveAspectRatio="none">
+        <path fill="#1E2D7B" d="M0,0 C480,50 960,10 1440,30 L1440,60 L0,60Z"/>
+      </svg>
+    </div>
+
+    <!-- Footer -->
+    <footer class="w-full py-8 px-6 text-center opacity-50 text-sm">
+      <p>© 2024 איש המים | Ish HaMayim. כל הזכויות שמורות.</p>
+    </footer>
+  </div>
+
+  <script>
+    // ── Supabase ──────────────────────────────────
+    const { createClient } = supabase;
+    const db = createClient(
+      'https://wrohbpzdnurmxqkmxkdo.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indyb2hicHpkbnVybXhxa214a2RvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMjAwOTksImV4cCI6MjA5MjY5NjA5OX0.7iLynlJuxypNuZ7xmQFlrbURbm1hPkdoVtNNdMHC0pY'
+    );
+
+    lucide.createIcons();
+
+    // ── Validation ──────────────────────────────────
+    const IL_PHONE = /^(\+972[-\s]?|0)5[0-9][-\s]?\d{7}$/;
+
+    function showError(id, msg) {
+      const el = document.getElementById(id);
+      el.textContent = msg;
+      el.classList.remove('hidden');
+    }
+    function clearError(id) {
+      document.getElementById(id).classList.add('hidden');
+    }
+
+    function validateForm() {
+      let valid = true;
+      const name  = document.getElementById('fname').value.trim();
+      const phone = document.getElementById('fphone').value.trim();
+      const email = document.getElementById('femail').value.trim();
+
+      clearError('fname-error');
+      clearError('fphone-error');
+      clearError('femail-error');
+
+      if (name.length < 2) {
+        showError('fname-error', 'נא להזין שם של לפחות 2 תווים');
+        valid = false;
+      }
+      if (!IL_PHONE.test(phone.replace(/\s/g, ''))) {
+        showError('fphone-error', 'נא להזין מספר טלפון ישראלי תקין (050-0000000)');
+        valid = false;
+      }
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        showError('femail-error', 'כתובת האימייל לא נראית תקינה');
+        valid = false;
+      }
+      return valid;
+    }
+
+    // Blur validation
+    document.getElementById('fname').addEventListener('blur', () => {
+      const v = document.getElementById('fname').value.trim();
+      v.length < 2 ? showError('fname-error', 'נא להזין שם של לפחות 2 תווים') : clearError('fname-error');
+    });
+    document.getElementById('fphone').addEventListener('blur', () => {
+      const v = document.getElementById('fphone').value.trim();
+      !IL_PHONE.test(v.replace(/\s/g, '')) ? showError('fphone-error', 'נא להזין מספר טלפון ישראלי תקין') : clearError('fphone-error');
+    });
+    document.getElementById('femail').addEventListener('blur', () => {
+      const v = document.getElementById('femail').value.trim();
+      if (v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) showError('femail-error', 'כתובת האימייל לא נראית תקינה');
+      else clearError('femail-error');
+    });
+
+    // ── Form Submit ──────────────────────────────────
+    document.getElementById('lead-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!validateForm()) return;
+
+      // Honeypot check
+      const honeypot = e.target.querySelector('input[name="website"]');
+      if (honeypot && honeypot.value) return; // bot detected, silent fail
+
+      const btn       = document.getElementById('submit-btn');
+      const textEl    = document.getElementById('submit-text');
+      const spinnerEl = document.getElementById('submit-spinner');
+      const toast     = document.getElementById('toast');
+
+      btn.disabled = true;
+      btn.style.opacity = '0.7';
+      textEl.classList.add('hidden');
+      spinnerEl.classList.remove('hidden');
+
+      const payload = {
+        name:  document.getElementById('fname').value.trim(),
+        phone: document.getElementById('fphone').value.trim(),
+        email: document.getElementById('femail').value.trim() || null,
+        source: 'landing_v1',
+        submitted_at: new Date().toISOString()
+      };
+
+      try {
+        const { error } = await db.from('leads').insert(payload);
+        if (error) throw error;
+
+        toast.textContent = '🎉 נרשמת בהצלחה! ניצור איתך קשר בקרוב.';
+        toast.style.background = 'rgba(75,200,232,0.2)';
+        toast.style.color = '#4BC8E8';
+        toast.className = 'mt-4 p-3 rounded-xl text-center font-bold text-sm toast-enter';
+        toast.classList.remove('hidden');
+        e.target.reset();
+
+      } catch (err) {
+        toast.textContent = '❌ שגיאה בשליחה. נסו שוב.';
+        toast.style.background = 'rgba(239,68,68,0.2)';
+        toast.style.color = '#ef4444';
+        toast.className = 'mt-4 p-3 rounded-xl text-center font-bold text-sm toast-enter';
+        toast.classList.remove('hidden');
+      } finally {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        spinnerEl.classList.add('hidden');
+        textEl.classList.remove('hidden');
+        setTimeout(() => toast.classList.add('hidden'), 4000);
+      }
+    });
+  </script>
+</body>
+</html>
