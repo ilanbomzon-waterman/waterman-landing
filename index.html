@@ -217,7 +217,7 @@
     lucide.createIcons();
 
     // ── Validation ──────────────────────────────────
-    const IL_PHONE = /^(\+972[-\s]?|0)5[0-9][-\s]?\d{7}$/;
+    const IL_PHONE = /^(\+972[-\s.]?|0)5[0-9][-\s.]?\d{3}[-\s.]?\d{4}$/;
 
     function showError(id, msg) {
       const el = document.getElementById(id);
