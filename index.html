@@ -81,6 +81,58 @@
     }
     .cta-whatsapp:hover { color: #4BC8E8; }
 
+    /* ── Nav ── */
+    #main-nav {
+      position: fixed; top: 0; right: 0; left: 0; z-index: 50;
+      height: 72px; display: flex; align-items: center;
+      padding: 0 32px;
+      background: transparent;
+      transition: background 300ms ease, backdrop-filter 300ms ease;
+    }
+    #main-nav.scrolled {
+      background: #1E2D7B;
+      border-bottom: 1px solid rgba(75,200,232,0.2);
+    }
+    .nav-link {
+      color: rgba(255,255,255,0.85); font-size: 15px; font-weight: 500;
+      text-decoration: none; padding: 4px 0;
+      border-bottom: 2px solid transparent;
+      transition: color 200ms, border-color 200ms;
+    }
+    .nav-link:hover { color: #4BC8E8; border-bottom-color: #4BC8E8; }
+    .nav-cta {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #4BC8E8; color: #1E2D7B; font-weight: 700; font-size: 14px;
+      padding: 9px 20px; border-radius: 999px; text-decoration: none;
+      transition: background 200ms ease;
+    }
+    .nav-cta:hover { background: #6FD4ED; }
+
+    /* Mobile menu — slide-in from left */
+    #mobile-menu {
+      position: fixed; top: 0; left: 0; bottom: 0; z-index: 49;
+      width: 280px; background: #1E2D7B;
+      border-right: 1px solid rgba(75,200,232,0.2);
+      display: flex; flex-direction: column;
+      padding: 80px 32px 40px;
+      gap: 28px;
+      transform: translateX(-100%);
+      transition: transform 300ms ease;
+    }
+    #mobile-menu.open { transform: translateX(0); }
+    #menu-backdrop {
+      display: none; position: fixed; inset: 0; z-index: 48;
+      background: rgba(0,0,0,0.4);
+    }
+    #menu-backdrop.open { display: block; }
+    .mobile-nav-link {
+      color: white; font-size: 18px; font-weight: 600;
+      text-decoration: none; transition: color 200ms;
+      border-bottom: 1px solid rgba(75,200,232,0.1);
+      padding-bottom: 16px;
+    }
+    .mobile-nav-link:hover { color: #4BC8E8; }
+
     @media (prefers-reduced-motion: reduce) {
       .anim-in, .hero-content { animation: none; opacity: 1; }
       .wave-1, .wave-2, .wave-3, .btn-shimmer { animation: none; }
@@ -123,6 +175,29 @@
 </head>
 <body class="h-full" style="background-color:#1E2D7B; color:#ffffff;">
   <div id="app-wrapper" class="w-full h-full overflow-auto" style="background-color:#1E2D7B;">
+
+    <!-- NAV -->
+    <nav id="main-nav" style="justify-content:flex-end;">
+      <!-- Hamburger always visible — left side (LTR left = RTL end) -->
+      <button id="hamburger" class="text-white p-2" aria-label="פתח תפריט">
+        <i data-lucide="menu" style="width:32px;height:32px;"></i>
+      </button>
+    </nav>
+
+    <!-- Backdrop -->
+    <div id="menu-backdrop"></div>
+
+    <!-- Mobile menu sidebar -->
+    <div id="mobile-menu">
+      <a href="#who" class="mobile-nav-link" id="mn1">מי זה בשבילך</a>
+      <a href="#story" class="mobile-nav-link" id="mn2">הסיפור</a>
+      <a href="#how" class="mobile-nav-link" id="mn3">מה קורה בשעה</a>
+      <a href="#faq" class="mobile-nav-link" id="mn4">שאלות</a>
+      <a href="https://wa.me/972525319799?text=היי%2C%20אני%20רוצה%20להתחיל%20עם%20שעה%20של%20שקט" target="_blank" class="nav-cta" style="margin-top:8px;">
+        <i data-lucide="message-circle" style="width:18px;height:18px;"></i>
+        דברו איתי בוואטסאפ
+      </a>
+    </div>
 
     <!-- HERO SECTION -->
     <section class="relative w-full overflow-hidden" style="height:70vh; min-height:500px;">
@@ -211,10 +286,108 @@
       </div>
     </section>
 
-    <!-- Bottom wave -->
+    <!-- Wave into WHO section -->
     <div class="relative w-full" style="height:60px; margin-top:-1px; background-color:#141f5c;">
       <svg class="w-full h-full" viewBox="0 0 1440 60" preserveAspectRatio="none">
         <path fill="#1E2D7B" d="M0,0 C480,50 960,10 1440,30 L1440,60 L0,60Z"/>
+      </svg>
+    </div>
+
+    <!-- WHO IS IT FOR SECTION -->
+    <section id="who" class="w-full py-20 px-6" style="background-color:#1E2D7B;">
+      <div class="max-w-5xl mx-auto">
+        <div class="text-center mb-4">
+          <h2 class="text-4xl font-black mb-3" style="color:#4BC8E8;">כי כולם מתחילים מאיפשהו</h2>
+          <p class="text-lg opacity-60">(גם מי שלא יודע על איזה צד לשים את המשקפת)</p>
+        </div>
+
+        <!-- Cards grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mt-12">
+
+          <!-- דנה -->
+          <div class="rounded-2xl p-7 transition-transform hover:scale-[1.02]"
+            style="background:rgba(75,200,232,0.06); border:1px solid rgba(75,200,232,0.18);">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-12 h-12 rounded-full flex items-center justify-center text-xl font-black"
+                style="background:rgba(75,200,232,0.15); color:#4BC8E8;">ד</div>
+              <div>
+                <p class="font-black text-white">דנה</p>
+                <p class="text-sm opacity-50">34, תל אביב 🌊</p>
+              </div>
+            </div>
+            <blockquote class="leading-relaxed opacity-85 text-base" style="color:#e2eaf8;">
+              "פחדתי ממים כל החיים.<br>
+              לא ממים עמוקים — ממים בכלל.<br>
+              שעה אחת לא ריפאה את זה.<br>
+              אבל לראשונה הרגשתי שאני יכולה."
+            </blockquote>
+          </div>
+
+          <!-- מיכאל -->
+          <div class="rounded-2xl p-7 transition-transform hover:scale-[1.02]"
+            style="background:rgba(75,200,232,0.06); border:1px solid rgba(75,200,232,0.18);">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-12 h-12 rounded-full flex items-center justify-center text-xl font-black"
+                style="background:rgba(75,200,232,0.15); color:#4BC8E8;">מ</div>
+              <div>
+                <p class="font-black text-white">מיכאל</p>
+                <p class="text-sm opacity-50">52, חיפה 💪</p>
+              </div>
+            </div>
+            <blockquote class="leading-relaxed opacity-85 text-base" style="color:#e2eaf8;">
+              "כל החיים אמרתי לעצמי שזה לא בשבילי.<br>
+              גיל 52, לא בכושר, לא יודע לשחות.<br>
+              ואז החלטתי שמספיק לחכות שיהיה נוח."
+            </blockquote>
+          </div>
+
+          <!-- נועה -->
+          <div class="rounded-2xl p-7 transition-transform hover:scale-[1.02]"
+            style="background:rgba(75,200,232,0.06); border:1px solid rgba(75,200,232,0.18);">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-12 h-12 rounded-full flex items-center justify-center text-xl font-black"
+                style="background:rgba(75,200,232,0.15); color:#4BC8E8;">נ</div>
+              <div>
+                <p class="font-black text-white">נועה</p>
+                <p class="text-sm opacity-50">28, ירושלים 🎉</p>
+              </div>
+            </div>
+            <blockquote class="leading-relaxed opacity-85 text-base" style="color:#e2eaf8;">
+              "חשבתי שאני היחידה בגילי שלא יודעת.<br>
+              בשיעור הראשון גיליתי שאני ממש לא לבד.<br>
+              ואת זה לא ציפיתי."
+            </blockquote>
+          </div>
+
+          <!-- יוסף -->
+          <div class="rounded-2xl p-7 transition-transform hover:scale-[1.02]"
+            style="background:rgba(75,200,232,0.06); border:1px solid rgba(75,200,232,0.18);">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-12 h-12 rounded-full flex items-center justify-center text-xl font-black"
+                style="background:rgba(75,200,232,0.15); color:#4BC8E8;">י</div>
+              <div>
+                <p class="font-black text-white">יוסף</p>
+                <p class="text-sm opacity-50">61, באר שבע 🏊</p>
+              </div>
+            </div>
+            <blockquote class="leading-relaxed opacity-85 text-base" style="color:#e2eaf8;">
+              "הנכדים שאלו אותי למה סבא לא שוחה.<br>
+              לא היה לי תשובה טובה.<br>
+              עכשיו יש."
+            </blockquote>
+          </div>
+
+        </div>
+
+        <!-- Bottom note -->
+        <p class="text-center mt-10 opacity-50 text-sm">גם אנחנו היינו שם פעם 🤿</p>
+      </div>
+    </section>
+
+    <!-- Wave into lead form -->
+    <div class="relative w-full" style="height:60px; margin-top:-1px; background-color:#1E2D7B;">
+      <svg class="w-full h-full" viewBox="0 0 1440 60" preserveAspectRatio="none">
+        <path fill="#141f5c" d="M0,30 C360,0 720,60 1080,30 C1260,15 1380,45 1440,40 L1440,60 L0,60Z"/>
       </svg>
     </div>
 
@@ -282,6 +455,37 @@
     );
 
     lucide.createIcons();
+
+    // ── Nav scroll behavior ──────────────────────────────────
+    const nav = document.getElementById('main-nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 60);
+    });
+
+    // ── Hamburger / sidebar ──────────────────────────────────
+    const menu = document.getElementById('mobile-menu');
+    const backdrop = document.getElementById('menu-backdrop');
+    const hamburger = document.getElementById('hamburger');
+    const hamIcon = hamburger.querySelector('i');
+
+    const openMenu = () => {
+      menu.classList.add('open');
+      backdrop.classList.add('open');
+      hamIcon.setAttribute('data-lucide', 'x');
+      lucide.createIcons();
+    };
+    const closeMenu = () => {
+      menu.classList.remove('open');
+      backdrop.classList.remove('open');
+      hamIcon.setAttribute('data-lucide', 'menu');
+      lucide.createIcons();
+    };
+
+    hamburger.addEventListener('click', () => {
+      menu.classList.contains('open') ? closeMenu() : openMenu();
+    });
+    backdrop.addEventListener('click', closeMenu);
+    ['mn1','mn2','mn3','mn4'].forEach(id => document.getElementById(id)?.addEventListener('click', closeMenu));
 
     // ── Hero slideshow ──────────────────────────────────
     const slides = document.querySelectorAll('.hero-slide');
