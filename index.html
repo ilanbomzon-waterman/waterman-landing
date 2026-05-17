@@ -1,0 +1,806 @@
+<!doctype html>
+<html lang="he" dir="rtl" style="scroll-behavior:smooth;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>איש המים | שעה של שקט</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Heebo', sans-serif; }
+
+    /* ── Scroll reveal ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(36px);
+      transition: opacity 0.75s cubic-bezier(0.22,1,0.36,1), transform 0.75s cubic-bezier(0.22,1,0.36,1);
+    }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-d1 { transition-delay: 0.1s; }
+    .reveal-d2 { transition-delay: 0.2s; }
+    .reveal-d3 { transition-delay: 0.3s; }
+    .reveal-d4 { transition-delay: 0.4s; }
+
+    /* ── Hero slideshow ── */
+    .hero-slide {
+      position: absolute; inset: 0;
+      background-size: cover; background-position: center;
+      opacity: 0; transition: opacity 1.8s ease-in-out;
+    }
+    .hero-slide.active { opacity: 1; }
+
+    /* ── Ken-burns on story image ── */
+    @keyframes kenBurns {
+      0%   { transform: scale(1); }
+      100% { transform: scale(1.06); }
+    }
+    .story-img { animation: kenBurns 12s ease-in-out infinite alternate; }
+
+    /* ── Hero content entrance ── */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(32px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .hero-content { animation: fadeInUp 0.9s cubic-bezier(0.22,1,0.36,1) 0.3s both; }
+
+    /* ── Shimmer CTA ── */
+    @keyframes shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position:  200% center; }
+    }
+    .btn-shimmer {
+      background-size: 200% 100%;
+      background-image: linear-gradient(90deg, #4BC8E8 0%, #7DDBF5 45%, #4BC8E8 100%);
+      animation: shimmer 3s ease-in-out infinite;
+    }
+
+    /* ── CTA buttons ── */
+    .cta-primary {
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 16px 40px; border-radius: 999px;
+      background: #4BC8E8; color: #1E2D7B; font-weight: 900; font-size: 1.1rem;
+      text-decoration: none; transition: all 250ms ease;
+      box-shadow: 0 4px 28px rgba(75,200,232,0.35);
+    }
+    .cta-primary:hover { background: #6FD4ED; transform: translateY(-2px); box-shadow: 0 10px 36px rgba(75,200,232,0.5); }
+
+    .cta-ghost {
+      display: inline-flex; align-items: center; gap: 8px;
+      color: rgba(255,255,255,0.8); font-size: 0.95rem; text-decoration: none;
+      border: 1px solid rgba(255,255,255,0.2); padding: 12px 24px; border-radius: 999px;
+      transition: all 200ms ease;
+    }
+    .cta-ghost:hover { color: #4BC8E8; border-color: #4BC8E8; }
+
+    /* ── Floating WhatsApp ── */
+    #float-wa {
+      position: fixed; bottom: 28px; left: 24px; z-index: 60;
+      display: flex; align-items: center; gap: 10px;
+      background: #25D366; color: #fff; font-weight: 700; font-size: 14px;
+      padding: 14px 22px; border-radius: 999px; text-decoration: none;
+      box-shadow: 0 6px 28px rgba(37,211,102,0.45);
+      transition: transform 200ms ease, box-shadow 200ms ease;
+    }
+    #float-wa:hover { transform: translateY(-3px); box-shadow: 0 10px 36px rgba(37,211,102,0.55); }
+    @media (max-width: 480px) { #float-wa span.wa-label { display: none; } #float-wa { padding: 14px; } }
+
+    /* ── Nav ── */
+    #main-nav {
+      position: fixed; top: 0; right: 0; left: 0; z-index: 50;
+      height: 72px; display: flex; align-items: center; padding: 0 28px;
+      background: transparent;
+      transition: background 350ms ease, box-shadow 350ms ease;
+    }
+    #main-nav.scrolled {
+      background: rgba(20,31,92,0.97);
+      box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+      backdrop-filter: blur(10px);
+    }
+    .nav-cta {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: #4BC8E8; color: #1E2D7B; font-weight: 700; font-size: 14px;
+      padding: 9px 20px; border-radius: 999px; text-decoration: none;
+      transition: background 200ms ease;
+    }
+    .nav-cta:hover { background: #6FD4ED; }
+
+    /* ── Mobile sidebar ── */
+    #mobile-menu {
+      position: fixed; top: 0; left: 0; bottom: 0; z-index: 49;
+      width: 280px; background: #141f5c;
+      border-left: 1px solid rgba(75,200,232,0.15);
+      display: flex; flex-direction: column;
+      padding: 88px 28px 40px; gap: 4px;
+      transform: translateX(-100%);
+      transition: transform 320ms cubic-bezier(0.22,1,0.36,1);
+    }
+    #mobile-menu.open { transform: translateX(0); }
+    #menu-backdrop {
+      display: none; position: fixed; inset: 0; z-index: 48;
+      background: rgba(0,0,0,0.5); backdrop-filter: blur(2px);
+    }
+    #menu-backdrop.open { display: block; }
+    .mobile-nav-link {
+      color: rgba(255,255,255,0.85); font-size: 17px; font-weight: 600;
+      text-decoration: none; padding: 14px 0;
+      border-bottom: 1px solid rgba(75,200,232,0.08);
+      transition: color 200ms, padding-right 200ms;
+    }
+    .mobile-nav-link:hover { color: #4BC8E8; padding-right: 6px; }
+
+    /* ── Chips ── */
+    .chip {
+      display: inline-flex; align-items: center; white-space: nowrap;
+      padding: 0.4rem 1rem; border-radius: 9999rem;
+      background: rgba(75,200,232,0.12); border: 1px solid rgba(75,200,232,0.28);
+      color: #4BC8E8; font-weight: 700; font-size: 0.9rem;
+    }
+    .chip--emphasis { background: rgba(75,200,232,0.2); color: #7DDBF5; font-weight: 900; font-size: 1rem; }
+
+    /* ── Section label ── */
+    .section-label {
+      display: inline-block; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase; font-size: 11px; color: #4BC8E8;
+      border-bottom: 2px solid rgba(75,200,232,0.4); padding-bottom: 4px;
+      margin-bottom: 20px;
+    }
+
+    /* ── Cards ── */
+    .card {
+      background: rgba(75,200,232,0.05);
+      border: 1px solid rgba(75,200,232,0.15);
+      border-radius: 20px;
+      transition: transform 250ms ease, border-color 250ms ease, box-shadow 250ms ease;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: rgba(75,200,232,0.3);
+      box-shadow: 0 12px 36px rgba(0,0,0,0.2);
+    }
+
+    /* ── Quote mark ── */
+    .quote-mark::before {
+      content: '"';
+      display: block;
+      font-size: 64px;
+      color: rgba(75,200,232,0.25);
+      font-family: Georgia, serif;
+      line-height: 1;
+      margin-bottom: -10px;
+    }
+
+    /* ── Offer glow box ── */
+    .offer-box {
+      background: linear-gradient(135deg, rgba(75,200,232,0.08) 0%, rgba(30,45,123,0.4) 100%);
+      border: 1px solid rgba(75,200,232,0.25);
+      border-radius: 28px;
+      box-shadow: 0 0 60px rgba(75,200,232,0.08), inset 0 0 40px rgba(75,200,232,0.04);
+    }
+
+    /* ── Toast ── */
+    .toast-enter { animation: fadeInUp 0.4s ease-out forwards; }
+    input:focus { outline: none; box-shadow: 0 0 0 3px rgba(75,200,232,0.35); border-radius: 12px; }
+
+    /* ── Waves ── */
+    @keyframes waveFloat {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(-20px); }
+    }
+    .wave-anim { animation: waveFloat 8s ease-in-out infinite; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .reveal { opacity: 1; transform: none; transition: none; }
+      .hero-content { animation: none; opacity: 1; }
+      .story-img { animation: none; }
+      .btn-shimmer { animation: none; }
+      .hero-slide { transition: none; }
+      .wave-anim { animation: none; }
+    }
+  </style>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { navy:'#1E2D7B', 'navy-dark':'#141f5c', cyan:'#4BC8E8', 'cyan-light':'#7DDBF5' } } }
+    }
+  </script>
+</head>
+<body style="background-color:#1E2D7B; color:#ffffff; overflow-x:hidden;">
+
+  <!-- ── FLOATING WHATSAPP ── -->
+  <a id="float-wa" href="https://wa.me/972525319799?text=היי%2C%20אני%20רוצה%20להתחיל%20עם%20שעה%20של%20שקט" target="_blank" rel="noopener">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    <span class="wa-label">דברו איתי</span>
+  </a>
+
+  <!-- ── NAV ── -->
+  <nav id="main-nav" style="justify-content:flex-end;">
+    <button id="hamburger" class="text-white p-2" aria-label="פתח תפריט">
+      <i data-lucide="menu" style="width:30px;height:30px;"></i>
+    </button>
+  </nav>
+
+  <!-- Backdrop -->
+  <div id="menu-backdrop"></div>
+
+  <!-- Sidebar -->
+  <div id="mobile-menu">
+    <a href="#who"   class="mobile-nav-link" id="mn1">מי זה בשבילך</a>
+    <a href="#story" class="mobile-nav-link" id="mn2">הסיפור</a>
+    <a href="#how"   class="mobile-nav-link" id="mn3">מה קורה בשעה</a>
+    <a href="#offer" class="mobile-nav-link" id="mn4">ההצעה</a>
+    <a href="#lead-form" class="mobile-nav-link" id="mn5">השאר פרטים</a>
+    <a href="https://wa.me/972525319799?text=היי%2C%20אני%20רוצה%20להתחיל%20עם%20שעה%20של%20שקט"
+      target="_blank" class="nav-cta mt-4" style="text-align:center; justify-content:center;">
+      <i data-lucide="message-circle" style="width:17px;height:17px;"></i>
+      וואטסאפ
+    </a>
+  </div>
+
+  <!-- ── HERO ── -->
+  <section class="relative w-full overflow-hidden" style="height:90vh; min-height:560px;">
+    <div class="hero-slide active" style="background-image:url('Images/sea_entry.jpg');"></div>
+    <div class="hero-slide"        style="background-image:url('Images/hero1.jpg');"></div>
+
+    <!-- Overlay — darker at bottom for text legibility -->
+    <div class="absolute inset-0" style="background:linear-gradient(170deg,rgba(20,31,92,0.55) 0%,rgba(20,31,92,0.2) 40%,rgba(20,31,92,0.82) 100%); z-index:1;"></div>
+
+    <!-- Logo -->
+    <div class="absolute z-10" style="top:20px; right:24px;">
+      <img src="logo.png" alt="איש המים" class="object-contain drop-shadow-xl" style="width:110px;height:110px;">
+    </div>
+
+    <!-- Content -->
+    <div class="relative z-10 h-full flex flex-col items-center justify-end text-center pb-20 px-6">
+      <div class="hero-content w-full" style="max-width:780px;">
+        <p class="font-bold mb-3" style="color:#4BC8E8; font-size:clamp(13px,1.2vw,16px); letter-spacing:0.15em; text-transform:uppercase;">שיעור ראשון · ₪29.90</p>
+        <h1 class="font-black text-white leading-tight mb-5"
+          style="font-size:clamp(34px,5.5vw,68px); text-shadow:0 2px 30px rgba(0,0,0,0.3);">
+          להפוך את השחייה<br>לחלק ממך.
+        </h1>
+        <p class="font-bold mb-10" style="font-size:clamp(16px,1.5vw,21px); color:rgba(255,255,255,0.9); line-height:1.7;">
+          חתירה נכונה. חיבור אמיתי למים.<br>בקצב שלך.
+        </p>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <a href="#offer" class="cta-primary">
+            <i data-lucide="message-circle" style="width:20px;height:20px;"></i>
+            בואו נתחיל יחד
+          </a>
+          <a href="#who" class="cta-ghost">
+            לא בטוח אם זה בשבילך? ↓
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Wave -->
+    <div class="absolute bottom-0 left-0 w-full z-10" style="height:80px;">
+      <svg class="w-full h-full" viewBox="0 0 1440 80" preserveAspectRatio="none">
+        <path fill="#1E2D7B" d="M0,40 C360,80 720,0 1080,40 C1260,60 1380,30 1440,40 L1440,80 L0,80Z" opacity="0.5"/>
+        <path fill="#1E2D7B" d="M0,55 C480,20 960,70 1440,50 L1440,80 L0,80Z"/>
+      </svg>
+    </div>
+  </section>
+
+  <!-- ── MIRROR ── -->
+  <section class="w-full px-6" style="background-color:#1E2D7B; padding-top:64px; padding-bottom:72px;">
+    <div class="max-w-xl mx-auto text-center reveal">
+      <p class="font-black leading-snug mb-6" style="font-size:clamp(24px,3.2vw,38px); color:#ffffff; line-height:1.5;">
+        יש שאלה אחת שחוזרת.<br>
+        לא רועשת. שקטה.<br>
+        "האם אני חי את החיים שלי,<br>או את מה שמצופה ממני?"
+      </p>
+      <p class="leading-loose opacity-80" style="font-size:clamp(16px,1.5vw,19px); color:#e2eaf8; line-height:2;">
+        עבור הרבה אנשים, התשובה מגיעה מהמים.<br>
+        לא בגלל שאהבו שחייה.<br>
+        בגלל שהיו צריכים לנשום.
+      </p>
+    </div>
+  </section>
+
+  <!-- Wave -->
+  <div style="height:50px; background:#1E2D7B; margin-top:-1px;">
+    <svg width="100%" height="100%" viewBox="0 0 1440 50" preserveAspectRatio="none">
+      <path fill="#141f5c" d="M0,25 C480,50 960,0 1440,25 L1440,50 L0,50Z"/>
+    </svg>
+  </div>
+
+  <!-- ── WHO ── -->
+  <section id="who" class="w-full px-6 py-20" style="background:#141f5c;">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-14 reveal">
+        <span class="section-label">מי זה בשבילך</span>
+        <h2 class="font-black" style="font-size:clamp(28px,3.5vw,44px); color:#ffffff; line-height:1.25;">
+          כי כולם מתחילים מאיפשהו
+        </h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+
+        <div class="card p-7 reveal reveal-d1">
+          <div class="quote-mark"></div>
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-11 h-11 rounded-full flex items-center justify-center text-lg font-black flex-shrink-0"
+              style="background:rgba(75,200,232,0.18); color:#4BC8E8;">ד</div>
+            <div>
+              <p class="font-black text-white text-sm">ד., 34</p>
+              <p class="text-xs opacity-40">תל אביב</p>
+            </div>
+          </div>
+          <blockquote class="leading-relaxed text-sm" style="color:#ccdcf0; line-height:1.9;">
+            "שחיתי כל חיי אבל תמיד הרגשתי שאני עובדת קשה מדי.<br>
+            אחרי שיעור אחד הבנתי מה חסר לי."
+          </blockquote>
+        </div>
+
+        <div class="card p-7 reveal reveal-d2">
+          <div class="quote-mark"></div>
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-11 h-11 rounded-full flex items-center justify-center text-lg font-black flex-shrink-0"
+              style="background:rgba(75,200,232,0.18); color:#4BC8E8;">מ</div>
+            <div>
+              <p class="font-black text-white text-sm">מ., 52</p>
+              <p class="text-xs opacity-40">חיפה</p>
+            </div>
+          </div>
+          <blockquote class="leading-relaxed text-sm" style="color:#ccdcf0; line-height:1.9;">
+            "הגעתי כי רציתי להיות בריא.<br>
+            נשארתי כי גיליתי שיש לי הרבה יותר בגוף ממה שחשבתי."
+          </blockquote>
+        </div>
+
+        <div class="card p-7 reveal reveal-d3">
+          <div class="quote-mark"></div>
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-11 h-11 rounded-full flex items-center justify-center text-lg font-black flex-shrink-0"
+              style="background:rgba(75,200,232,0.18); color:#4BC8E8;">נ</div>
+            <div>
+              <p class="font-black text-white text-sm">נ., 28</p>
+              <p class="text-xs opacity-40">ירושלים</p>
+            </div>
+          </div>
+          <blockquote class="leading-relaxed text-sm" style="color:#ccdcf0; line-height:1.9;">
+            "לא ידעתי לשחות בכלל.<br>
+            חשבתי שזה מסובך.<br>
+            גיליתי שזה ממש לא."
+          </blockquote>
+        </div>
+
+        <div class="card p-7 reveal reveal-d4">
+          <div class="quote-mark"></div>
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-11 h-11 rounded-full flex items-center justify-center text-lg font-black flex-shrink-0"
+              style="background:rgba(75,200,232,0.18); color:#4BC8E8;">י</div>
+            <div>
+              <p class="font-black text-white text-sm">י., 61</p>
+              <p class="text-xs opacity-40">באר שבע</p>
+            </div>
+          </div>
+          <blockquote class="leading-relaxed text-sm" style="color:#ccdcf0; line-height:1.9;">
+            "הנכדים שאלו אותי למה סבא לא שוחה.<br>
+            לא היה לי תשובה טובה.<br>
+            עכשיו יש."
+          </blockquote>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Wave -->
+  <div style="height:50px; background:#141f5c; margin-top:-1px;">
+    <svg width="100%" height="100%" viewBox="0 0 1440 50" preserveAspectRatio="none">
+      <path fill="#1E2D7B" d="M0,20 C360,50 720,0 1080,35 C1260,50 1380,20 1440,28 L1440,50 L0,50Z"/>
+    </svg>
+  </div>
+
+  <!-- ── FEATURES ── -->
+  <section class="w-full px-6 py-20" style="background:#1E2D7B;">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-14 reveal">
+        <span class="section-label">מה זה איש המים</span>
+        <h2 class="font-black" style="font-size:clamp(24px,3.2vw,42px); color:#ffffff; line-height:1.4;">
+          המטרה שלנו —<br>
+          להיות הבית של כל מי שרוצה<br>
+          להכניס שחייה לחיים.<br>
+          <span style="color:#4BC8E8;">מהצעד הראשון עד הקילומטר המיליון.</span>
+        </h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="card p-8 text-center reveal reveal-d1">
+          <div class="w-14 h-14 rounded-2xl mx-auto mb-5 flex items-center justify-center"
+            style="background:rgba(75,200,232,0.12);">
+            <i data-lucide="waves" style="width:28px;height:28px;color:#4BC8E8;"></i>
+          </div>
+          <h3 class="text-lg font-black mb-3" style="color:#4BC8E8;">כייף וריפוי</h3>
+          <p class="opacity-60 leading-relaxed text-sm">המים יכולים להיות מקום שמרגיש טוב.<br>לגוף. לנפש. לשניהם ביחד.</p>
+        </div>
+        <div class="card p-8 text-center reveal reveal-d2">
+          <div class="w-14 h-14 rounded-2xl mx-auto mb-5 flex items-center justify-center"
+            style="background:rgba(75,200,232,0.12);">
+            <i data-lucide="heart-pulse" style="width:28px;height:28px;color:#4BC8E8;"></i>
+          </div>
+          <h3 class="text-lg font-black mb-3" style="color:#4BC8E8;">בריאות וספורט</h3>
+          <p class="opacity-60 leading-relaxed text-sm">שחייה נכונה היא אחת הפעילויות הטובות לגוף.<br>אנחנו מלמדים אותה בדרך שנשארת איתך לאורך זמן.</p>
+        </div>
+        <div class="card p-8 text-center reveal reveal-d3">
+          <div class="w-14 h-14 rounded-2xl mx-auto mb-5 flex items-center justify-center"
+            style="background:rgba(75,200,232,0.12);">
+            <i data-lucide="users" style="width:28px;height:28px;color:#4BC8E8;"></i>
+          </div>
+          <h3 class="text-lg font-black mb-3" style="color:#4BC8E8;">קהילה</h3>
+          <p class="opacity-60 leading-relaxed text-sm">שוחים ושוחות שהולכים יחד.<br>כי הדרך טובה יותר עם אנשים לצד.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Wave -->
+  <div style="height:50px; background:#1E2D7B; margin-top:-1px;">
+    <svg width="100%" height="100%" viewBox="0 0 1440 50" preserveAspectRatio="none">
+      <path fill="#141f5c" d="M0,30 C480,0 960,50 1440,20 L1440,50 L0,50Z"/>
+    </svg>
+  </div>
+
+  <!-- ── STORY ── -->
+  <section id="story" class="w-full px-6 py-20" style="background:#141f5c;">
+    <div class="max-w-5xl mx-auto">
+      <div class="flex flex-col md:flex-row items-center gap-12">
+
+        <!-- Image with overflow clip -->
+        <div class="w-full md:w-5/12 flex-shrink-0 reveal overflow-hidden rounded-2xl"
+          style="box-shadow:0 16px 60px rgba(0,0,0,0.5); border:1px solid rgba(75,200,232,0.15);">
+          <img src="Images/ilan_teaching.jpg" alt="אילן בומזון מלמד בבריכה"
+            class="w-full story-img block"
+            style="max-height:500px; object-fit:cover; object-position:top; display:block;">
+        </div>
+
+        <!-- Text -->
+        <div class="w-full md:w-7/12 reveal reveal-d2">
+          <span class="section-label">הסיפור</span>
+          <h2 class="font-black mb-6" style="font-size:clamp(26px,3vw,40px); color:#ffffff; line-height:1.25;">
+            אילן בומזון
+          </h2>
+          <div class="space-y-4" style="font-size:clamp(15px,1.35vw,17px); color:#ccdcf0; line-height:1.95;">
+            <p>עשרים שנה הייתי בהייטק.<br>תפקיד טוב. יציב. הכל נראה בסדר.</p>
+            <p>המים היו המקום שבו הראש שותק.<br>אין לחץ. אין רעש. רק תנועה.</p>
+            <p>ואז שמתי לב למשהו.<br>
+            רוב האנשים שמגיעים למים — נלחמים בהם.<br>
+            לא בגלל שהם לא מסוגלים.<br>
+            בגלל שאף פעם לא לימדו אותם לנוע במים נכון.</p>
+            <p>חתירה נכונה היא לא טכניקה.<br>
+            היא דרך לנוע עם המים, לא נגדם.<br>
+            וכשזה קורה — השחייה מפסיקה להיות מאמץ.<br>
+            היא הופכת למקום של ריקוד.</p>
+            <p class="font-black" style="color:#4BC8E8;">מכאן נולד איש המים.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Wave -->
+  <div style="height:50px; background:#141f5c; margin-top:-1px;">
+    <svg width="100%" height="100%" viewBox="0 0 1440 50" preserveAspectRatio="none">
+      <path fill="#1E2D7B" d="M0,10 C360,50 720,0 1080,30 C1260,45 1380,15 1440,22 L1440,50 L0,50Z"/>
+    </svg>
+  </div>
+
+  <!-- ── HOW ── -->
+  <section id="how" class="w-full px-6 py-20" style="background:#1E2D7B;">
+    <div class="max-w-3xl mx-auto text-center">
+      <div class="reveal">
+        <span class="section-label">השיעור הראשון</span>
+        <h2 class="font-black mb-4" style="font-size:clamp(26px,3.5vw,44px); color:#ffffff; line-height:1.3;">
+          שעה אחת. בלי לחץ.<br>בלי שיפוטיות.
+        </h2>
+        <p class="mb-14 opacity-70" style="font-size:clamp(15px,1.4vw,18px); color:#e2eaf8; line-height:2;">
+          לא מגיעים לשחות מהר.<br>
+          מגיעים להכיר — את המים, ואת עצמך בתוכם.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-right mb-12">
+        <div class="card p-7 reveal reveal-d1">
+          <div class="text-4xl mb-4">🌊</div>
+          <h3 class="font-black mb-3" style="color:#4BC8E8; font-size:1.05rem;">חיבור למים</h3>
+          <p class="text-sm opacity-65 leading-relaxed" style="color:#e2eaf8;">
+            מתחילים מהתחושה, לא מהטכניקה.<br>
+            איך הגוף שלך נע. איך המים מחזיקים אותך.
+          </p>
+        </div>
+        <div class="card p-7 reveal reveal-d2">
+          <div class="text-4xl mb-4">🤝</div>
+          <h3 class="font-black mb-3" style="color:#4BC8E8; font-size:1.05rem;">ניפגש</h3>
+          <p class="text-sm opacity-65 leading-relaxed" style="color:#e2eaf8;">
+            את.ה תכיר.י אותנו. אנחנו נכיר אותך.<br>
+            ביחד נבין איפה את.ה עכשיו ולאן את.ה רוצה להגיע.
+          </p>
+        </div>
+        <div class="card p-7 reveal reveal-d3">
+          <div class="text-4xl mb-4">✅</div>
+          <h3 class="font-black mb-3" style="color:#4BC8E8; font-size:1.05rem;">בסוף השיעור</h3>
+          <p class="text-sm opacity-65 leading-relaxed" style="color:#e2eaf8;">
+            תדע.י מה הצעד הבא שלך.<br>
+            אנחנו נדע איך ללוות אותך הלאה.
+          </p>
+        </div>
+      </div>
+
+      <p class="font-black reveal" style="font-size:clamp(16px,1.5vw,20px); color:#4BC8E8;">
+        אין התחייבות. רק שעה שמשנה את הנקודת מבט.
+      </p>
+    </div>
+  </section>
+
+  <!-- Wave -->
+  <div style="height:50px; background:#1E2D7B; margin-top:-1px;">
+    <svg width="100%" height="100%" viewBox="0 0 1440 50" preserveAspectRatio="none">
+      <path fill="#141f5c" d="M0,35 C360,5 720,50 1080,20 C1260,5 1380,40 1440,30 L1440,50 L0,50Z"/>
+    </svg>
+  </div>
+
+  <!-- ── FAQ ── -->
+  <section id="faq" class="w-full px-6 py-20" style="background:#141f5c;">
+    <div class="max-w-3xl mx-auto">
+      <div class="text-center mb-14 reveal">
+        <span class="section-label">שאלות נפוצות</span>
+        <h2 class="font-black" style="font-size:clamp(28px,3.5vw,44px); color:#ffffff; line-height:1.25;">
+          יש שאלות? טבעי לגמרי.
+        </h2>
+      </div>
+
+      <div class="space-y-4">
+
+        <div class="card p-7 reveal reveal-d1">
+          <h3 class="font-black mb-3" style="color:#4BC8E8; font-size:1.05rem;">אני שוחה כבר שנים — זה בשבילי?</h3>
+          <p class="text-sm leading-relaxed opacity-70" style="color:#e2eaf8;">
+            בהחלט. הרבה שוחים שנים אבל מעולם לא תיקנו את הבסיס. שיעור אחד יכול לשנות את כל התחושה בבריכה.
+          </p>
+        </div>
+
+        <div class="card p-7 reveal reveal-d2">
+          <h3 class="font-black mb-3" style="color:#4BC8E8; font-size:1.05rem;">מעולם לא שחיתי — מאיפה מתחילים?</h3>
+          <p class="text-sm leading-relaxed opacity-70" style="color:#e2eaf8;">
+            בדיוק מכאן. לא צריך ניסיון קודם. מתחילים מהתחלה, בקצב שלך.
+          </p>
+        </div>
+
+        <div class="card p-7 reveal reveal-d3">
+          <h3 class="font-black mb-3" style="color:#4BC8E8; font-size:1.05rem;">כמה זמן לוקח לראות שינוי?</h3>
+          <p class="text-sm leading-relaxed opacity-70" style="color:#e2eaf8;">
+            אנשים רבים מרגישים הבדל כבר מהשיעור הראשון. השינוי האמיתי קורה כשהשחייה הופכת להרגל — ואנחנו שם כדי לעזור לך להגיע לשם.
+          </p>
+        </div>
+
+        <div class="card p-7 reveal reveal-d4">
+          <h3 class="font-black mb-3" style="color:#4BC8E8; font-size:1.05rem;">מה קורה אחרי השיעור הראשון?</h3>
+          <p class="text-sm leading-relaxed opacity-70" style="color:#e2eaf8;">
+            בסוף השיעור נדבר יחד על ההמשך. אין התחייבות. את.ה בוחר.ת את הקצב.
+          </p>
+        </div>
+
+        <div class="card p-7 reveal reveal-d1">
+          <h3 class="font-black mb-3" style="color:#4BC8E8; font-size:1.05rem;">איפה הבריכות?</h3>
+          <p class="text-sm leading-relaxed opacity-70" style="color:#e2eaf8;">
+            אנחנו פועלים במספר בריכות באזור — קיסריה, מישמרות, כישור. נתאם את המיקום המתאים לך.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- Wave -->
+  <div style="height:50px; background:#141f5c; margin-top:-1px;">
+    <svg width="100%" height="100%" viewBox="0 0 1440 50" preserveAspectRatio="none">
+      <path fill="#1E2D7B" d="M0,20 C480,50 960,5 1440,30 L1440,50 L0,50Z"/>
+    </svg>
+  </div>
+
+  <!-- ── OFFER ── -->
+  <section id="offer" class="w-full px-6 py-20" style="background:#141f5c;">
+    <div class="max-w-2xl mx-auto reveal">
+      <div class="offer-box px-8 py-14 text-center">
+        <span class="section-label">בואו נתחיל</span>
+        <h2 class="font-black mb-4" style="font-size:clamp(32px,5vw,56px); color:#ffffff; line-height:1.3;">
+          שיעור ראשון.<br>
+          <span style="color:#4BC8E8;">₪29.90.</span><br>
+          בלי התחייבות.
+        </h2>
+        <p class="mb-10 opacity-80 leading-loose" style="font-size:clamp(15px,1.4vw,18px); color:#e2eaf8; line-height:2;">
+          שעה אחת שמשנה את נקודת המבט.<br>
+          נלווה אותך מכאן.
+        </p>
+        <div class="flex flex-wrap justify-center gap-3 mb-10">
+          <span class="chip">⏱️ שעה אחת</span>
+          <span class="chip">🌊 כל הרמות</span>
+          <span class="chip chip--emphasis">₪29.90</span>
+        </div>
+        <a href="https://wa.me/972525319799?text=היי%2C%20אני%20רוצה%20להתחיל%20עם%20שעה%20של%20שקט"
+          target="_blank" rel="noopener" class="cta-primary text-xl" style="padding:18px 48px;">
+          <i data-lucide="message-circle" style="width:22px;height:22px;"></i>
+          בואו נתחיל יחד
+        </a>
+        <p class="mt-5 opacity-35 text-sm">ניצור קשר לתיאום השיעור הראשון שלך.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Wave -->
+  <div style="height:50px; background:#141f5c; margin-top:-1px;">
+    <svg width="100%" height="100%" viewBox="0 0 1440 50" preserveAspectRatio="none">
+      <path fill="#1E2D7B" d="M0,20 C480,50 960,5 1440,30 L1440,50 L0,50Z"/>
+    </svg>
+  </div>
+
+  <!-- ── LEAD FORM ── -->
+  <section id="lead-form" class="w-full px-6 py-20" style="background:#1E2D7B;">
+    <div class="max-w-md mx-auto reveal">
+      <div class="text-center mb-10">
+        <img src="logo.png" alt="איש המים" class="w-16 h-16 object-contain mx-auto mb-4">
+        <h2 class="text-3xl font-black mb-2" style="color:#4BC8E8;">פתיחת דלת</h2>
+        <p class="opacity-60 text-base">שעה אחת · ₪29.90 · בלי ניסיון קודם</p>
+      </div>
+      <div class="rounded-2xl p-8 relative overflow-hidden"
+        style="background:rgba(255,255,255,0.04); border:1px solid rgba(75,200,232,0.18); box-shadow:0 8px 40px rgba(0,0,0,0.2);">
+        <h3 class="text-lg font-black mb-6" style="color:#4BC8E8;">השאר פרטים — נחזור אליך</h3>
+        <form id="lead-form-fields" class="space-y-4" novalidate>
+          <div>
+            <label for="fname" class="block text-sm font-bold mb-1 opacity-70">שם מלא *</label>
+            <input type="text" id="fname" name="name" required minlength="2"
+              placeholder="השם שלך"
+              class="w-full px-4 py-3 rounded-xl text-white font-bold"
+              style="background:rgba(255,255,255,0.07); border:1px solid rgba(75,200,232,0.25);">
+            <p class="error-msg text-xs mt-1 hidden" style="color:#f87171;" id="fname-error"></p>
+          </div>
+          <div>
+            <label for="fphone" class="block text-sm font-bold mb-1 opacity-70">טלפון *</label>
+            <input type="tel" id="fphone" name="phone" required
+              placeholder="050-000-0000" dir="ltr"
+              class="w-full px-4 py-3 rounded-xl text-white font-bold text-left"
+              style="background:rgba(255,255,255,0.07); border:1px solid rgba(75,200,232,0.25);">
+            <p class="error-msg text-xs mt-1 hidden" style="color:#f87171;" id="fphone-error"></p>
+          </div>
+          <div>
+            <label for="femail" class="block text-sm font-bold mb-1 opacity-70">אימייל <span class="opacity-50 font-normal">(לא חובה)</span></label>
+            <input type="email" id="femail" name="email"
+              placeholder="your@email.com" dir="ltr"
+              class="w-full px-4 py-3 rounded-xl text-white font-bold text-left"
+              style="background:rgba(255,255,255,0.07); border:1px solid rgba(75,200,232,0.25);">
+            <p class="error-msg text-xs mt-1 hidden" style="color:#f87171;" id="femail-error"></p>
+          </div>
+          <input type="text" name="website" style="position:absolute;left:-9999px;opacity:0;pointer-events:none;" tabindex="-1" autocomplete="off">
+          <button id="submit-btn" type="submit"
+            class="btn-shimmer w-full py-4 rounded-xl font-black text-lg mt-2 transition-transform hover:scale-105 active:scale-95 cursor-pointer"
+            style="color:#141f5c;">
+            <span id="submit-text">אני רוצה לנסות — ₪29.90</span>
+            <span id="submit-spinner" class="hidden">שולח...</span>
+          </button>
+        </form>
+        <div id="toast" class="hidden mt-4 p-3 rounded-xl text-center font-bold text-sm"></div>
+        <p class="text-center text-xs mt-4 opacity-40">אין ספאם. תגובה אנושית. אפשר גם <a href="https://wa.me/972525319799" target="_blank" style="color:#4BC8E8;">בוואטסאפ</a>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── FOOTER ── -->
+  <footer class="w-full py-10 px-6 text-center" style="background:#141f5c; border-top:1px solid rgba(75,200,232,0.08);">
+    <img src="logo.png" alt="איש המים" class="w-12 h-12 object-contain mx-auto mb-4 opacity-60">
+    <p class="opacity-30 text-sm">© 2026 איש המים | Ish HaMayim. כל הזכויות שמורות.</p>
+    <p class="mt-2 opacity-20 text-xs">
+      <a href="https://wa.me/972525319799" target="_blank" style="color:inherit;">wa.me/972525319799</a>
+    </p>
+  </footer>
+
+  <script>
+    // ── Supabase ──
+    const { createClient } = supabase;
+    const db = createClient(
+      'https://wrohbpzdnurmxqkmxkdo.supabase.co',
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Indyb2hicHpkbnVybXhxa214a2RvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzcxMjAwOTksImV4cCI6MjA5MjY5NjA5OX0.7iLynlJuxypNuZ7xmQFlrbURbm1hPkdoVtNNdMHC0pY'
+    );
+
+    lucide.createIcons();
+
+    // ── Nav ──
+    const nav = document.getElementById('main-nav');
+    window.addEventListener('scroll', () => nav.classList.toggle('scrolled', window.scrollY > 60), { passive: true });
+
+    // ── Hamburger ──
+    const menu = document.getElementById('mobile-menu');
+    const backdrop = document.getElementById('menu-backdrop');
+    const hamburger = document.getElementById('hamburger');
+    const hamIcon = hamburger.querySelector('i');
+
+    const openMenu = () => {
+      menu.classList.add('open'); backdrop.classList.add('open');
+      hamIcon.setAttribute('data-lucide', 'x'); lucide.createIcons();
+    };
+    const closeMenu = () => {
+      menu.classList.remove('open'); backdrop.classList.remove('open');
+      hamIcon.setAttribute('data-lucide', 'menu'); lucide.createIcons();
+    };
+    hamburger.addEventListener('click', () => menu.classList.contains('open') ? closeMenu() : openMenu());
+    backdrop.addEventListener('click', closeMenu);
+    ['mn1','mn2','mn3','mn4','mn5'].forEach(id => document.getElementById(id)?.addEventListener('click', closeMenu));
+
+    // ── Hero slideshow ──
+    const slides = document.querySelectorAll('.hero-slide');
+    let current = 0;
+    setInterval(() => {
+      slides[current].classList.remove('active');
+      current = (current + 1) % slides.length;
+      slides[current].classList.add('active');
+    }, 5000);
+
+    // ── Scroll reveal ──
+    const revealObserver = new IntersectionObserver((entries) => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); revealObserver.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+    // ── Validation ──
+    const IL_PHONE = /^(\+972[-\s.]?|0)5[0-9][-\s.]?\d{3}[-\s.]?\d{4}$/;
+    const showError = (id, msg) => { const el = document.getElementById(id); el.textContent = msg; el.classList.remove('hidden'); };
+    const clearError = id => document.getElementById(id).classList.add('hidden');
+
+    function validateForm() {
+      let valid = true;
+      const name = document.getElementById('fname').value.trim();
+      const phone = document.getElementById('fphone').value.trim();
+      const email = document.getElementById('femail').value.trim();
+      clearError('fname-error'); clearError('fphone-error'); clearError('femail-error');
+      if (name.length < 2) { showError('fname-error', 'נא להזין שם של לפחות 2 תווים'); valid = false; }
+      if (!IL_PHONE.test(phone.replace(/\s/g,''))) { showError('fphone-error', 'נא להזין מספר טלפון ישראלי תקין (050-0000000)'); valid = false; }
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { showError('femail-error', 'כתובת האימייל לא נראית תקינה'); valid = false; }
+      return valid;
+    }
+
+    document.getElementById('fname').addEventListener('blur', () => { const v = document.getElementById('fname').value.trim(); v.length < 2 ? showError('fname-error','נא להזין שם של לפחות 2 תווים') : clearError('fname-error'); });
+    document.getElementById('fphone').addEventListener('blur', () => { const v = document.getElementById('fphone').value.trim(); !IL_PHONE.test(v.replace(/\s/g,'')) ? showError('fphone-error','נא להזין מספר טלפון ישראלי תקין') : clearError('fphone-error'); });
+    document.getElementById('femail').addEventListener('blur', () => { const v = document.getElementById('femail').value.trim(); if (v && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)) showError('femail-error','כתובת האימייל לא נראית תקינה'); else clearError('femail-error'); });
+
+    // ── Submit ──
+    document.getElementById('lead-form-fields').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!validateForm()) return;
+      const honeypot = e.target.querySelector('input[name="website"]');
+      if (honeypot && honeypot.value) return;
+
+      const btn = document.getElementById('submit-btn');
+      const textEl = document.getElementById('submit-text');
+      const spinnerEl = document.getElementById('submit-spinner');
+      const toast = document.getElementById('toast');
+
+      btn.disabled = true; btn.style.opacity = '0.7';
+      textEl.classList.add('hidden'); spinnerEl.classList.remove('hidden');
+
+      const payload = {
+        name:  document.getElementById('fname').value.trim(),
+        phone: document.getElementById('fphone').value.trim(),
+        email: document.getElementById('femail').value.trim() || null,
+        source: 'landing_v1'
+      };
+
+      try {
+        const { error } = await db.from('leads').insert(payload);
+        if (error) throw error;
+        toast.textContent = 'קיבלנו. ניצור קשר בקרוב לתאם את שעת השקט שלך.';
+        toast.style.background = 'rgba(75,200,232,0.15)'; toast.style.color = '#4BC8E8';
+        toast.className = 'mt-4 p-3 rounded-xl text-center font-bold text-sm toast-enter';
+        toast.classList.remove('hidden'); e.target.reset();
+      } catch (err) {
+        toast.textContent = '❌ שגיאה בשליחה. נסו שוב.';
+        toast.style.background = 'rgba(239,68,68,0.15)'; toast.style.color = '#ef4444';
+        toast.className = 'mt-4 p-3 rounded-xl text-center font-bold text-sm toast-enter';
+        toast.classList.remove('hidden');
+      } finally {
+        btn.disabled = false; btn.style.opacity = '1';
+        spinnerEl.classList.add('hidden'); textEl.classList.remove('hidden');
+        setTimeout(() => toast.classList.add('hidden'), 5000);
+      }
+    });
+  </script>
+</body>
+</html>
