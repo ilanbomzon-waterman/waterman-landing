@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="he" dir="rtl" style="scroll-behavior:smooth;">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>איש המים | המסלולים</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.263.0/dist/umd/lucide.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <style>
+    * { font-family: 'Heebo', sans-serif; }
+    .reveal { opacity: 0; transform: translateY(36px); transition: opacity 0.75s cubic-bezier(0.22,1,0.36,1), transform 0.75s cubic-bezier(0.22,1,0.36,1); }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    #float-wa { position: fixed; bottom: 28px; left: 24px; z-index: 60; display: flex; align-items: center; gap: 10px; background: #25D366; color: #fff; font-weight: 700; font-size: 14px; padding: 14px 22px; border-radius: 999px; text-decoration: none; box-shadow: 0 6px 28px rgba(37,211,102,0.45); transition: transform 200ms ease, box-shadow 200ms ease; }
+    #float-wa:hover { transform: translateY(-3px); box-shadow: 0 10px 36px rgba(37,211,102,0.55); }
+    @media (max-width: 480px) { #float-wa span.wa-label { display: none; } #float-wa { padding: 14px; } }
+    #main-nav { position: fixed; top: 0; right: 0; left: 0; z-index: 50; height: 72px; display: flex; align-items: center; justify-content: space-between; padding: 0 28px; background: rgba(20,31,92,0.97); box-shadow: 0 2px 20px rgba(0,0,0,0.3); backdrop-filter: blur(10px); }
+    .nav-cta { display: inline-flex; align-items: center; gap: 6px; background: #4BC8E8; color: #1E2D7B; font-weight: 700; font-size: 14px; padding: 9px 20px; border-radius: 999px; text-decoration: none; transition: background 200ms ease; }
+    .nav-cta:hover { background: #6FD4ED; }
+    .nav-back { display: inline-flex; align-items: center; gap: 6px; color: rgba(255,255,255,0.8); font-size: 14px; font-weight: 600; text-decoration: none; transition: color 200ms ease; }
+    .nav-back:hover { color: #4BC8E8; }
+    .cta-primary { display: inline-flex; align-items: center; gap: 10px; padding: 14px 34px; border-radius: 999px; background: #4BC8E8; color: #1E2D7B; font-weight: 900; font-size: 1rem; text-decoration: none; transition: all 250ms ease; box-shadow: 0 4px 28px rgba(75,200,232,0.35); }
+    .cta-primary:hover { background: #6FD4ED; transform: translateY(-2px); box-shadow: 0 10px 36px rgba(75,200,232,0.5); }
+    .section-label { display: inline-block; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; font-size: 19px; color: #4BC8E8; border-bottom: 2px solid rgba(75,200,232,0.4); padding-bottom: 6px; margin-bottom: 16px; }
+    .chip { display: inline-flex; align-items: center; white-space: nowrap; padding: 0.35rem 0.9rem; border-radius: 9999rem; background: rgba(75,200,232,0.12); border: 1px solid rgba(75,200,232,0.28); color: #4BC8E8; font-weight: 700; font-size: 0.85rem; }
+
+    /* Course card (clickable) */
+    .course-card {
+      display: flex; flex-direction: column;
+      background: rgba(75,200,232,0.05); border: 1px solid rgba(75,200,232,0.15);
+      border-radius: 22px; overflow: hidden; text-decoration: none;
+      transition: transform 250ms ease, border-color 250ms ease, box-shadow 250ms ease;
+    }
+    .course-card:hover { transform: translateY(-5px); border-color: rgba(75,200,232,0.4); box-shadow: 0 16px 44px rgba(0,0,0,0.28); }
+    .course-card .thumb { position: relative; width: 100%; height: 190px; overflow: hidden; }
+    .course-card .thumb img { width: 100%; height: 100%; object-fit: cover; transition: transform 500ms ease; }
+    .course-card:hover .thumb img { transform: scale(1.05); }
+    .course-card .thumb .grad { position: absolute; inset: 0; background: linear-gradient(180deg, rgba(30,45,123,0) 40%, rgba(30,45,123,0.85) 100%); }
+    .course-card .body { padding: 22px 24px 26px; display: flex; flex-direction: column; flex: 1; }
+    .course-card h2 { font-weight: 900; color: #fff; font-size: clamp(24px,2.9vw,32px); margin-bottom: 12px; }
+    .course-card .lead { color: #cfe0f5; line-height: 1.8; font-size: 15.5px; flex: 1; }
+    .course-card .more { display: inline-flex; align-items: center; gap: 6px; color: #4BC8E8; font-weight: 800; font-size: 15px; margin-top: 18px; }
+    .course-card:hover .more { gap: 10px; }
+
+    @media (prefers-reduced-motion: reduce) { .reveal { opacity: 1; transform: none; transition: none; } .course-card, .course-card .thumb img { transition: none; } }
+  </style>
+  <script>tailwind.config = { theme: { extend: { colors: { navy:'#1E2D7B', 'navy-dark':'#141f5c', cyan:'#4BC8E8', 'cyan-light':'#7DDBF5' } } } }</script>
+</head>
+<body style="background-color:#1E2D7B; color:#ffffff; overflow-x:hidden;">
+
+  <a id="float-wa" href="https://wa.me/972526021378?text=היי%2C%20אני%20רוצה%20פרטים%20על%20המסלולים" target="_blank" rel="noopener">
+    <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    <span class="wa-label">דברו איתי</span>
+  </a>
+
+  <nav id="main-nav">
+    <a href="index.html" class="nav-back"><i data-lucide="arrow-right" style="width:18px;height:18px;"></i>חזרה לדף הבית</a>
+    <a href="https://wa.me/972526021378?text=היי%2C%20אני%20רוצה%20פרטים%20על%20המסלולים" target="_blank" class="nav-cta"><i data-lucide="message-circle" style="width:16px;height:16px;"></i>וואטסאפ</a>
+  </nav>
+
+  <header class="w-full px-6 text-center" style="padding-top:128px; padding-bottom:48px;">
+    <img src="logo.png" alt="איש המים" class="object-contain mx-auto mb-6" style="width:82px;height:82px;">
+    <span class="section-label">המסלולים</span>
+    <h1 class="font-black text-white leading-tight mb-5" style="font-size:clamp(30px,4.6vw,54px);">
+      לכולנו יש דרך<br>שמתאימה לנו להגיע למים.
+    </h1>
+    <p class="font-bold mx-auto" style="max-width:620px; font-size:clamp(16px,1.5vw,20px); color:rgba(255,255,255,0.85); line-height:1.7;">
+      ארבעה מסלולים.
+      אותו עיקרון — להתחיל מהמקום שלכם, ולהגיע למקום שמתאים לכם.
+    </p>
+  </header>
+
+  <main class="w-full px-6" style="padding-bottom:72px;">
+    <div class="mx-auto grid grid-cols-1 md:grid-cols-2 gap-7" style="max-width:960px;">
+
+      <a href="course-chatira.html" class="course-card reveal">
+        <div class="thumb"><img src="Images/chatira.jpg" alt="מסלול לימוד חתירה"><div class="grad"></div></div>
+        <div class="body">
+          <div class="mb-3"><span class="chip">10 שיעורים + חודש אימונים</span></div>
+          <h2>מסלול לימוד חתירה</h2>
+          <p class="lead">למי שיודעים לשחות אבל מתעייפים מהר. לומדים חתירה מהיסוד: ציפה, תנועה מהליבה ונשימה, עד שאפשר לשחות קילומטר בהנאה.</p>
+          <span class="more">לפרטים המלאים <i data-lucide="arrow-left" style="width:16px;height:16px;"></i></span>
+        </div>
+      </a>
+
+      <a href="course-yam.html" class="course-card reveal">
+        <div class="thumb"><img src="Images/yam.jpg" alt="מסלול ייעודי לשחייה בים"><div class="grad"></div></div>
+        <div class="body">
+          <div class="mb-3"><span class="chip">8 מפגשים + חודש אימונים</span></div>
+          <h2>מסלול ייעודי לשחייה בים</h2>
+          <p class="lead">למי שכבר יש להם טכניקה בסיסית ורוצים לצאת לים. שישה מפגשי בריכה ושניים בים, כולל טכניקת ניווט ושחייה למרחקים.</p>
+          <span class="more">לפרטים המלאים <i data-lucide="arrow-left" style="width:16px;height:16px;"></i></span>
+        </div>
+      </a>
+
+      <a href="course-meafes.html" class="course-card reveal">
+        <div class="thumb"><img src="Images/meafes.jpg" alt="לומדים לשחות מאפס"><div class="grad"></div></div>
+        <div class="body">
+          <div class="mb-3"><span class="chip">7 מפגשים</span></div>
+          <h2>לומדים לשחות מאפס</h2>
+          <p class="lead">למי שמעולם לא למד לשחות, ולמי שמתמודד עם פחד מהמים. מתחילים במים רדודים ובקצב אישי, עד שהמים הופכים למקום של כיף.</p>
+          <span class="more">לפרטים המלאים <i data-lucide="arrow-left" style="width:16px;height:16px;"></i></span>
+        </div>
+      </a>
+
+      <a href="course-ishit.html" class="course-card reveal">
+        <div class="thumb"><img src="Images/ishit.jpg" alt="מסלול שחייה אישי"><div class="grad"></div></div>
+        <div class="body">
+          <div class="mb-3"><span class="chip">5 מפגשים</span></div>
+          <h2>מסלול שחייה אישי</h2>
+          <p class="lead">עבודה אחד על אחד, בקצב שלך, לפי מטרות שנגדיר יחד בשיעור היכרות. הדרך המהירה ביותר לקחת את השחייה שלך לשלב הבא.</p>
+          <span class="more">לפרטים המלאים <i data-lucide="arrow-left" style="width:16px;height:16px;"></i></span>
+        </div>
+      </a>
+
+    </div>
+
+    <div class="text-center mt-14 reveal">
+      <p class="font-bold mb-6 mx-auto" style="max-width:560px; font-size:clamp(17px,1.6vw,21px); color:#e2eaf8; line-height:1.7;">
+        לא בטוחים איזה מסלול מתאים לכם?<br>
+        דברו איתי, ונמצא ביחד את הדרך הנכונה למים.
+      </p>
+      <a href="https://wa.me/972526021378?text=היי%2C%20אני%20רוצה%20פרטים%20על%20המסלולים" target="_blank" rel="noopener" class="cta-primary">
+        <i data-lucide="message-circle" style="width:20px;height:20px;"></i>
+        דברו איתי בוואטסאפ
+      </a>
+    </div>
+  </main>
+
+  <footer class="w-full py-10 px-6 text-center" style="background:#141f5c; border-top:1px solid rgba(75,200,232,0.08);">
+    <img src="logo.png" alt="איש המים" class="w-12 h-12 object-contain mx-auto mb-4 opacity-60">
+    <p class="opacity-30 text-sm">© 2026 איש המים | Ish HaMayim. כל הזכויות שמורות.</p>
+    <p class="mt-2 opacity-20 text-xs"><a href="https://wa.me/972526021378" target="_blank" style="color:inherit;">wa.me/972526021378</a></p>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+    const revealObserver = new IntersectionObserver((entries) => { entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); revealObserver.unobserve(e.target); } }); }, { threshold: 0.1 });
+    document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+  </script>
+</body>
+</html>
